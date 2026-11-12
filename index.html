@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Te Amo</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: linear-gradient(135deg, #ffe6eb 0%, #ffd1dc 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow-x: hidden;
+      padding: 24px 16px;
+    }
+
+    .container {
+      position: relative;
+      text-align: center;
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* Botón inicial */
+    .heart-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      outline: none;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+      margin: 0 auto;
+    }
+
+    .heart-icon {
+      font-size: 48px;
+      color: #e60039;
+      filter: drop-shadow(0px 2px 5px rgba(230, 0, 57, 0.3));
+      transition: transform 0.2s ease;
+    }
+
+    .heart-button:hover .heart-icon {
+      transform: scale(1.15);
+    }
+
+    .label-box {
+      border-bottom: 2px solid #e60039;
+      padding-bottom: 4px;
+      position: relative;
+    }
+
+    .label-box::before {
+      content: '';
+      position: absolute;
+      left: -8px;
+      bottom: -2px;
+      width: 8px;
+      height: 2px;
+      background-color: #e60039;
+      transform: rotate(45deg);
+      transform-origin: right bottom;
+    }
+
+    .label-text {
+      color: #b3002d;
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .heart-button.hide {
+      opacity: 0;
+      transform: scale(0.5);
+      pointer-events: none;
+      position: absolute;
+    }
+
+    /* Contenido principal oculto */
+    .content-box {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(20px);
+      transition: opacity 1s ease 0.3s, transform 1s ease 0.3s;
+      display: flex;
+      flex-direction: column;
+      gap: 32px; /* Mayor separación entre elementos */
+    }
+
+    .content-box.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    /* Estilo de Tarjeta/Carta para el mensaje principal */
+    .message-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 32px 24px;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 10px 30px rgba(230, 0, 57, 0.08);
+      position: relative;
+    }
+
+    .message-card::before {
+      content: '💌';
+      font-size: 28px;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .message-text {
+      color: #800020;
+      font-size: 1.6rem;
+      font-weight: 600;
+      line-height: 1.5;
+      letter-spacing: -0.2px;
+    }
+
+    /* Sección donde la persona ve su mensaje guardado previa o recientemente */
+    .saved-message-box {
+      background: rgba(255, 255, 255, 0.6);
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px dashed rgba(230, 0, 57, 0.4);
+      display: none;
+      text-align: left;
+      backdrop-filter: blur(5px);
+    }
+
+    .saved-message-box h4 {
+      color: #b3002d;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .saved-message-box p {
+      color: #4a4a4a;
+      font-size: 0.95rem;
+      font-style: italic;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    /* Formulario para enviar a Discord */
+    .reply-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 20px;
+      border-radius: 18px;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(230, 0, 57, 0.2);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    }
+
+    .reply-form label {
+      color: #b3002d;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-align: left;
+    }
+
+    .reply-form textarea {
+      width: 100%;
+      height: 95px;
+      padding: 12px;
+      border: 1.5px solid #ffa3b5;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      resize: none;
+      outline: none;
+      background: #ffffff;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .reply-form textarea:focus {
+      border-color: #e60039;
+      box-shadow: 0 0 0 3px rgba(230, 0, 57, 0.1);
+    }
+
+    .send-btn {
+      background: #e60039;
+      color: white;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.1s ease;
+    }
+
+    .send-btn:hover {
+      background: #b3002d;
+    }
+
+    .send-btn:active {
+      transform: scale(0.98);
+    }
+
+    .status-msg {
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: none;
+    }
+
+    /* Animación de los corazones cayendo */
+    .falling-heart {
+      position: fixed;
+      color: #e60039;
+      user-select: none;
+      pointer-events: none;
+      z-index: 99;
+      animation: fallAndFade linear forwards;
+    }
+
+    @keyframes fallAndFade {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1) rotate(0deg);
+      }
+      70% {
+        opacity: 0.8;
+      }
+      100% {
+        opacity: 0;
+        transform: translate(var(--translateX), var(--translateY)) scale(0.4) rotate(var(--rotation));
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Estado Inicial -->
+    <button class="heart-button" id="triggerBtn" onclick="startAnimation(event)">
+      <span class="heart-icon">❤</span>
+      <div class="label-box">
+        <span class="label-text">Preciona aqui, Mi niña</span>
+      </div>
+    </button>
+
+    <!-- Contenido revelado tras el clic -->
+    <div class="content-box" id="contentBox">
+      <!-- Tarjeta destacada para el mensaje -->
+      <div class="message-card">
+        <p class="message-text"> Son las 11:11 del dia 11 y mes 11. solo deseo que tu quieras estar conmigo
+            , que todo te salga bien y bonito. Ahora puedes estar lejos de mis ojos, de mis manos, de mis labios
+            pero no de mi corazon.Extraño estar cerca de ti, en forma que las palabras nisiquiera pueden entender
+            . Cuento los dias para volver a verte, todo esto me hace darme cuenta de lo mucho que te quiero
+            y cuanto significas para mi. eres mi adoracion. ❤️</p>
+      </div>
+
+      <!-- Aquí se muestra lo que haya guardado previamente -->
+      <div class="saved-message-box" id="savedMsgBox">
+        <h4>Lo último que me escribiste:</h4>
+        <p id="savedTextContent"></p>
+      </div>
+
+      <!-- Formulario para enviar mensaje -->
+      <form class="reply-form" id="discordForm" onsubmit="sendToDiscord(event)">
+        <label for="userReply"> Por favor Abre tu corazón escribiendo algo aqui, algo sobre nosotros, sobre mi o varias cosas
+            .Lo que escribas, solo lo podras ver tu, se guardara solo para ti, como un diario del tiempo lo podras ver en un futuro</label>
+        <textarea id="userReply" placeholder="Escribe aquí tu mensaje..." required></textarea>
+        <button type="submit" class="send-btn" id="sendBtn">Guardar</button>
+        <span class="status-msg" id="statusMsg"></span>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1570232528156098601/GALCgZByQyJ3PWLXCpksk5eEfEsC4ryUFm2D7OIY-xEZ_c5yaMRacJjCg6fmNztWFk3x";
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedMessage = localStorage.getItem('miMensajeRomantico');
+      if (savedMessage) {
+        const savedMsgBox = document.getElementById('savedMsgBox');
+        const savedTextContent = document.getElementById('savedTextContent');
+        savedTextContent.textContent = `"${savedMessage}"`;
+        savedMsgBox.style.display = 'block';
+      }
+    });
+
+    function startAnimation(event) {
+      const button = document.getElementById('triggerBtn');
+      const contentBox = document.getElementById('contentBox');
+
+      button.classList.add('hide');
+      contentBox.classList.add('show');
+
+      const rect = button.getBoundingClientRect();
+      const originX = rect.left + rect.width / 2;
+      const originY = rect.top + rect.height / 2;
+
+      const totalHearts = 35;
+      for (let i = 0; i < totalHearts; i++) {
+        setTimeout(() => {
+          createHeart(originX, originY);
+        }, i * 45);
+      }
+    }
+
+    function createHeart(x, y) {
+      const heart = document.createElement('div');
+      heart.classList.add('falling-heart');
+      heart.innerHTML = '❤';
+
+      const size = Math.random() * 20 + 14;
+      const duration = Math.random() * 2 + 1.8;
+      const translateX = (Math.random() - 0.5) * 260;
+      const translateY = window.innerHeight - y + 50;
+      const rotation = (Math.random() - 0.5) * 360;
+
+      heart.style.left = `${x}px`;
+      heart.style.top = `${y}px`;
+      heart.style.fontSize = `${size}px`;
+      heart.style.animationDuration = `${duration}s`;
+      heart.style.setProperty('--translateX', `${translateX}px`);
+      heart.style.setProperty('--translateY', `${translateY}px`);
+      heart.style.setProperty('--rotation', `${rotation}deg`);
+
+      document.body.appendChild(heart);
+
+      setTimeout(() => {
+        heart.remove();
+      }, duration * 1000);
+    }
+
+    function sendToDiscord(event) {
+      event.preventDefault();
+
+      const textarea = document.getElementById('userReply');
+      const sendBtn = document.getElementById('sendBtn');
+      const statusMsg = document.getElementById('statusMsg');
+      const text = textarea.value.trim();
+
+      if (!text) return;
+
+      sendBtn.disabled = true;
+      sendBtn.textContent = 'Guardando...';
+
+      const payload = {
+        content: `💌 **¡Nueva respuesta recibida!**\n> ${text}`
+      };
+
+      fetch(DISCORD_WEBHOOK_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(response => {
+        if (response.ok) {
+          localStorage.setItem('miMensajeRomantico', text);
+
+          const savedMsgBox = document.getElementById('savedMsgBox');
+          const savedTextContent = document.getElementById('savedTextContent');
+          savedTextContent.textContent = `"${text}"`;
+          savedMsgBox.style.display = 'block';
+
+          statusMsg.style.display = 'block';
+          statusMsg.style.color = '#2e7d32';
+          statusMsg.textContent = 'Mensaje guardado ❤️';
+          textarea.value = '';
+          sendBtn.textContent = 'Guardado ✔';
+        } else {
+          throw new Error('Error al guardar');
+        }
+      })
+      .catch(error => {
+        statusMsg.style.display = 'block';
+        statusMsg.style.color = '#c62828';
+        statusMsg.textContent = 'Hubo un error al guardar. Intenta de nuevo.';
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Guardar';
+      });
+    }
+  </script>
+</body>
+</html>
